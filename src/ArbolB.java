@@ -320,4 +320,40 @@ public class ArbolB {
             padre.hijos.remove(indiceHijo + 1); // Desvincula la referencia del hermano derecho.
         }
     }
+
+    /**
+     * Realiza e imprime un recorrido por niveles del Árbol B formateando los nodos.
+     */
+    public void imprimirPorNiveles() {
+        if (raiz == null) { // Verifica si el árbol se encuentra vacío.
+            System.out.println("Nivel 0 -> null"); // Imprime indicación de árbol nulo.
+            return; // Finaliza la ejecución.
+        }
+        Queue<NodoArbolB> cola = new LinkedList<>(); // Instancia una cola para el recorrido en anchura (BFS) por niveles.
+        cola.add(raiz); // Agrega la raíz como elemento inicial en la cola.
+        int nivel = 0; // Inicializa el contador del nivel actual.
+        System.out.println("\n-------------- Árbol B actual ---------------"); // Imprime cabecera decorativa del árbol.
+        while (!cola.isEmpty()) { // Procesa cada nivel mientras existan nodos en la cola.
+            int nodosEnNivel = cola.size(); // Obtiene el número total de nodos presentes en el nivel actual.
+            System.out.print("Nivel " + nivel + ": "); // Imprime la etiqueta del nivel.
+            for (int i = 0; i < nodosEnNivel; i++) { // Recorre todos los nodos pertenecientes al nivel actual.
+                NodoArbolB actual = cola.poll(); // Extrae el siguiente nodo de la cola.
+                StringBuilder repNodo = new StringBuilder("["); // Construye la representación de corchetes.
+                for (int j = 0; j < actual.llaves.size(); j++) { // Recorre las llaves contenidas dentro del nodo.
+                    repNodo.append(actual.llaves.get(j)); // Añade la llave al formateador textual.
+                    if (j < actual.llaves.size() - 1) { // Comprueba si existen más llaves en el nodo para añadir separador.
+                        repNodo.append(" | "); // Agrega la barra separadora entre llaves.
+                    }
+                }
+                repNodo.append("]"); // Cierra los corchetes del nodo actual.
+                System.out.print(repNodo.toString() + " "); // Imprime el bloque del nodo con espacio.
+                if (!actual.esHoja) { // Si el nodo procesado posee hijos.
+                    cola.addAll(actual.hijos); // Agrega todos sus hijos a la cola para el siguiente nivel.
+                }
+            }
+            System.out.println(); // Realiza un salto de línea tras terminar el nivel.
+            nivel++; // Incrementa el contador de nivel.
+        }
+        System.out.println("----------------------------------------------"); // Imprime el separador de cierre.
+    }
 }
