@@ -269,4 +269,55 @@ public class ArbolB {
         }
         return encontrado; // Retorna el resultado del proceso de eliminación.
     }
+
+    /**
+     * Repara la subocupación en un nodo hijo mediante redistribución de llaves o fusión con un hermano.
+     * @param padre Nodo padre del subárbol afectado.
+     * @param indiceHijo Índice del hijo que presenta déficit de llaves.
+     */
+    private void repararSubocupacion(NodoArbolB padre, int indiceHijo) {
+        NodoArbolB hijo = padre.hijos.get(indiceHijo); // Obtiene la referencia al nodo hijo bajo revisión.
+        if (hijo.llaves.size() >= 1) { // Verifica si el hijo cumple con la cantidad mínima de llaves.
+            return; // No requiere reparación.
+        }
+        if (indiceHijo > 0) { // Evalúa si existe un hermano izquierdo.
+            NodoArbolB hermanoIzq = padre.hijos.get(indiceHijo - 1); // Obtiene la referencia al hermano izquierdo.
+            if (hermanoIzq.llaves.size() > 1) { // Si el hermano izquierdo puede prestar una llave.
+                hijo.llaves.add(0, padre.llaves.get(indiceHijo - 1)); // Baja la llave del padre al hijo en primera posición.
+                padre.llaves.set(indiceHijo - 1, hermanoIzq.llaves.remove(hermanoIzq.llaves.size() - 1)); // Sube la mayor llave del hermano al padre.
+                if (!hermanoIzq.esHoja) { // Si no son hojas, transfiere la referencia del hijo extremo.
+                    hijo.hijos.add(0, hermanoIzq.hijos.remove(hermanoIzq.hijos.size() - 1)); // Reubica el último hijo del hermano al inicio del hijo.
+                }
+                return; // Finaliza tras la redistribución exitosa.
+            }
+        }
+        if (indiceHijo < padre.hijos.size() - 1) { // Evalúa si existe un hermano derecho.
+            NodoArbolB hermanoDer = padre.hijos.get(indiceHijo + 1); // Obtiene la referencia al hermano derecho.
+            if (hermanoDer.llaves.size() > 1) { // Si el hermano derecho puede prestar una llave.
+                hijo.llaves.add(padre.llaves.get(indiceHijo)); // Baja la llave delimitadora del padre al hijo.
+                padre.llaves.set(indiceHijo, hermanoDer.llaves.remove(0)); // Sube la menor llave del hermano al padre.
+                if (!hermanoDer.esHoja) { // Transfiere referencias de hijos si no es hoja.
+                    hijo.hijos.add(hermanoDer.hijos.remove(0)); // Reubica el primer hijo del hermano al final del hijo.
+                }
+                return; // Finaliza tras la redistribución.
+            }
+        }
+        if (indiceHijo > 0) { // Si no fue posible la redistribución, efectúa fusión con el hermano izquierdo.
+            NodoArbolB hermanoIzq = padre.hijos.get(indiceHijo - 1); // Obtiene el hermano izquierdo.
+            hermanoIzq.llaves.add(padre.llaves.remove(indiceHijo - 1)); // Remueve la llave del padre y la agrega al hermano izquierdo.
+            hermanoIzq.llaves.addAll(hijo.llaves); // Une las llaves restantes del hijo en el hermano izquierdo.
+            if (!hijo.esHoja) { // Si no son hojas, une sus subárboles.
+                hermanoIzq.hijos.addAll(hijo.hijos); // Transfiere todas las referencias de hijos.
+            }
+            padre.hijos.remove(indiceHijo); // Desvincula el nodo hijo vacío de la lista del padre.
+        } else { // Efectúa fusión con el hermano derecho si no hay hermano izquierdo.
+            NodoArbolB hermanoDer = padre.hijos.get(indiceHijo + 1); // Obtiene el hermano derecho.
+            hijo.llaves.add(padre.llaves.remove(indiceHijo)); // Remueve la llave del padre y la transfiere al hijo.
+            hijo.llaves.addAll(hermanoDer.llaves); // Junta las llaves del hermano derecho en el hijo.
+            if (!hermanoDer.esHoja) { // Transfiere referencias de hijos si aplica.
+                hijo.hijos.addAll(hermanoDer.hijos); // Copia los hijos del hermano derecho al hijo.
+            }
+            padre.hijos.remove(indiceHijo + 1); // Desvincula la referencia del hermano derecho.
+        }
+    }
 }
