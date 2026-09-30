@@ -356,4 +356,23 @@ public class ArbolB {
         }
         System.out.println("----------------------------------------------"); // Imprime el separador de cierre.
     }
+
+    /**
+     * Valida que el Árbol B cumpla rigurosamente con todas sus propiedades e invariantes.
+     * @return Verdadero si la estructura es un Árbol B válido; falso en caso contrario.
+     */
+    public boolean validarArbol() {
+        if (raiz == null) { // Verifica si el árbol está vacío.
+            System.out.println("Árbol B -> Vacío pero válido"); // Informa validez de árbol vacío.
+            return true; // Un árbol vacío es considerado válido.
+        }
+        int[] nivelHojas = {-1}; // Arreglo mutable de 1 posición para registrar el nivel uniforme de las hojas.
+        boolean esValido = validarNodoAuxiliar(raiz, 0, nivelHojas, true); // Inicia validación recursiva desde la raíz.
+        if (esValido) { // Evalúa el resultado final de la validación.
+            System.out.println("Árbol B -> Válido, cumple con los límites de m = 4, r = 3, q = 1 la cantidad exacta de hijos por cada nodo, llaves ordenadas en cada nodo y todas las hojas al mismo nivel"); // Notifica éxito en la comprobación.
+        } else { // Si se halló alguna incongruencia estructural.
+            System.out.println("Árbol B -> Inválido, hubo un incumplimiento en las reglas de los árboles B dentro del árbol construido"); // Notifica fallo en las reglas.
+        }
+        return esValido; // Retorna el estado global de validez.
+    }
 }
