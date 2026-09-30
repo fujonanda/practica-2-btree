@@ -209,4 +209,64 @@ public class ArbolB {
         }
         System.out.println("Llave " + x + " -> Eliminada"); // Imprime un mensaje que indica la llave eliminada
     }
+
+    /**
+     * Método auxiliar recursivo para localizar y eliminar una llave en un subárbol.
+     * @param nodo Nodo actual en proceso de eliminación.
+     * @param x Llave numérica a eliminar.
+     * @return Verdadero si la llave fue encontrada y eliminada; falso en caso contrario.
+     */
+    private boolean eliminarAuxiliar(NodoArbolB nodo, int x) {
+        int indice = 0; // Inicializa índice para buscar la posición de la llave.
+        while (indice < nodo.llaves.size() && x > nodo.llaves.get(indice)) { // Busca la posición correspondiente.
+            indice++; // Incrementa posición dentro de la lista de llaves.
+        }
+        if (indice < nodo.llaves.size() && nodo.llaves.get(indice) == x) { // Si la llave está presente en el nodo actual.
+            if (nodo.esHoja) { // Si el nodo es una hoja.
+                nodo.llaves.remove(indice); // Elimina directamente la llave de la hoja.
+                return true; // Retorna verdadero indicando éxito.
+            } else { // Si la llave está en un nodo interno.
+                NodoArbolB hijoIzq = nodo.hijos.get(indice); // Obtiene el subárbol izquierdo adyacente.
+                NodoArbolB hijoDer = nodo.hijos.get(indice + 1); // Obtiene el subárbol derecho adyacente.
+                if (hijoIzq.llaves.size() > 1) { // Si el hijo izquierdo tiene más del mínimo de llaves.
+                    NodoArbolB actual = hijoIzq; // Inicia navegación para buscar el predecesor.
+                    while (!actual.esHoja) { // Desciende hasta llegar a la hoja más a la derecha.
+                        actual = actual.hijos.get(actual.hijos.size() - 1); // Avanza al último hijo.
+                    }
+                    int predecesor = actual.llaves.get(actual.llaves.size() - 1); // Obtiene la mayor llave del subárbol izquierdo.
+                    nodo.llaves.set(indice, predecesor); // Reemplaza la llave eliminada por su predecesor.
+                    eliminarAuxiliar(hijoIzq, predecesor); // Elimina recursivamente el predecesor de su ubicación original.
+                    repararSubocupacion(nodo, indice); // Restaura el balance del subárbol si ocurrió subocupación.
+                }
+                else if (hijoDer.llaves.size() > 1) { // Si el hijo derecho tiene más del mínimo de llaves.
+                    NodoArbolB actual = hijoDer; // Inicia navegación para buscar el sucesor.
+                    while (!actual.esHoja) { // Desciende hasta llegar a la hoja más a la izquierda.
+                        actual = actual.hijos.get(0); // Avanza al primer hijo.
+                    }
+                    int sucesor = actual.llaves.get(0); // Obtiene la menor llave del subárbol derecho.
+                    nodo.llaves.set(indice, sucesor); // Reemplaza la llave eliminada por su sucesor.
+                    eliminarAuxiliar(hijoDer, sucesor); // Elimina recursivamente el sucesor de su ubicación original.
+                    repararSubocupacion(nodo, indice + 1); // Restaura el balance del subárbol tras la eliminación.
+                }
+                else { // Si ambos hijos tienen solo una llave.
+                    hijoIzq.llaves.add(nodo.llaves.remove(indice)); // Mueve la llave del nodo padre al hijo izquierdo.
+                    hijoIzq.llaves.addAll(hijoDer.llaves); // Une todas las llaves del hijo derecho en el izquierdo.
+                    if (!hijoIzq.esHoja) { // Si no son hojas, combina también las listas de hijos.
+                        hijoIzq.hijos.addAll(hijoDer.hijos); // Copia las referencias de los hijos del lado derecho.
+                    }
+                    nodo.hijos.remove(indice + 1); // Elimina el hijo derecho que fue fusionado.
+                    eliminarAuxiliar(hijoIzq, x); // Elimina recursivamente la llave desde el nodo fusionado.
+                }
+                return true; // Retorna verdadero al completar la eliminación en nodo interno.
+            }
+        }
+        if (nodo.esHoja) { // Si es una hoja y la llave no fue encontrada.
+            return false; // Retorna falso indicando ausencia del elemento.
+        }
+        boolean encontrado = eliminarAuxiliar(nodo.hijos.get(indice), x); // Busca recursivamente en el hijo correspondiente.
+        if (encontrado) { // Si la llave fue encontrada y eliminada en niveles inferiores.
+            repararSubocupacion(nodo, indice); // Repara posibles violaciones de subocupación en los hijos.
+        }
+        return encontrado; // Retorna el resultado del proceso de eliminación.
+    }
 }
