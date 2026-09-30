@@ -375,4 +375,48 @@ public class ArbolB {
         }
         return esValido; // Retorna el estado global de validez.
     }
+
+    /**
+     * Método auxiliar recursivo que comprueba las restricciones del Árbol B en cada nodo.
+     * @param nodo Nodo actual a verificar.
+     * @param nivelActual Nivel de profundidad en el que se encuentra el nodo.
+     * @param nivelHojas Referencia al arreglo que almacena el nivel esperado para las hojas.
+     * @param esRaiz Indicador booleano de si el nodo analizado es la raíz del árbol.
+     * @return Verdadero si el subárbol analizado es válido; falso si viola algún invariante.
+     */
+    private boolean validarNodoAuxiliar(NodoArbolB nodo, int nivelActual, int[] nivelHojas, boolean esRaiz) {
+        if (!esRaiz && nodo.llaves.size() < 1) { // Comprueba el mínimo de 1 llave para nodos distintos de la raíz (q = 1).
+            System.out.println("Un nodo tiene " + nodo.llaves.size() + "llaves y no cumple con q = 1"); // Reporta el error de subocupación.
+            return false; // Invalida la estructura.
+        }
+        if (nodo.llaves.size() > 3) { // Comprueba el máximo de 3 llaves por nodo (r = 3).
+            System.out.println("Un nodo tiene " + nodo.llaves.size() + " llaves y con cumple con r = 3"); // Reporta exceso de llaves.
+            return false; // Invalida la estructura.
+        }
+        for (int i = 0; i < nodo.llaves.size() - 1; i++) { // Recorre las llaves del nodo para verificar ordenamiento.
+            if (nodo.llaves.get(i) >= nodo.llaves.get(i + 1)) { // Verifica que cada llave sea strictly menor que la siguiente.
+                System.out.println("Las llaves " + nodo.llaves + " de un nodo están desordenadas"); // Reporta desorden en llaves.
+                return false; // Invalida la estructura.
+            }
+        }
+        if (nodo.esHoja) { // Si el nodo actual es una hoja.
+            if (nivelHojas[0] == -1) { // Si es la primera hoja detectada en el recorrido.
+                nivelHojas[0] = nivelActual; // Registra la profundidad de la primera hoja encontrada.
+            } else if (nivelHojas[0] != nivelActual) { // Compara si la hoja actual está a distinta profundidad que la primera.
+                System.out.println("Una hoja está en el nivel " + nivelActual + ", el nivel esperado es " + nivelHojas[0]); // Reporta disparidad de niveles en hojas.
+                return false; // Invalida la estructura.
+            }
+        } else { // Si el nodo actual es un nodo interno.
+            if (nodo.hijos.size() != nodo.llaves.size() + 1) { // Verifica la propiedad de r llaves -> r + 1 hijos.
+                System.out.println("Un nodo con " + nodo.llaves.size() + " llaves tiene " + nodo.hijos.size() + " hijos, la cantidad de hijos esperada es " + (nodo.llaves.size() + 1)); // Reporta discrepancia de número de hijos.
+                return false; // Invalida la estructura.
+            }
+            for (NodoArbolB hijo : nodo.hijos) { // Recorre todos los subárboles hijos.
+                if (!validarNodoAuxiliar(hijo, nivelActual + 1, nivelHojas, false)) { // Llama recursivamente a la validación en cada hijo.
+                    return false; // Retorna falso si algún subárbol hijo falla en las comprobaciones.
+                }
+            }
+        }
+        return true; // Retorna verdadero si el nodo y todos sus descendientes son válidos.
+    }
 }
