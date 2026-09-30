@@ -159,4 +159,26 @@ public class ArbolB {
             return null;
         }
     }
+
+    /**
+     * Método dividir
+     * Divide un nodo que ha alcanzado el límite de 4 llaves en dos nodos hermanos y promueve su mediana
+     * @param nodo Nodo desbordado a dividir
+     * @return Objeto ResultadoSplit con la mediana y los dos nuevos subárboles
+     */
+    private ResultadoSplit dividir(NodoArbolB nodo) {
+        int mediana = nodo.llaves.get(2); //Obtiene el elemento mediano ubicado en el índice 2
+        NodoArbolB izquierda = new NodoArbolB(nodo.esHoja); //Crea el nuevo nodo para la mitad izquierda
+        NodoArbolB derecha = new NodoArbolB(nodo.esHoja); //Crea el nuevo nodo para la mitad derecha
+        izquierda.llaves.addAll(nodo.llaves.subList(0, 2)); //Asigna las primeras dos llaves al nodo izquierdo
+        derecha.llaves.addAll(nodo.llaves.subList(3, 4)); //Asigna la última llave al nodo derecho
+        //Define el caso en el que si el nodo a dividir no es una hoja entonces redistribuye los hijos
+        if (!nodo.esHoja) {
+            izquierda.hijos.addAll(nodo.hijos.subList(0, 3)); //Copia los primeros 3 hijos al nodo izquierdo
+            derecha.hijos.addAll(nodo.hijos.subList(3, 5)); //Copia los 2 hijos restantes al nodo derecho
+        }
+        return new ResultadoSplit(mediana, izquierda, derecha); // Retorna los datos de la división
+    }
+
+    
 }
