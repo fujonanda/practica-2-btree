@@ -114,4 +114,49 @@ public class ArbolB {
         }
         System.out.println("Llave " + x + " -> Insertada"); //Imprime un mensaje que indica la nueva llave que se insertó
     }
+
+    /**
+     * Método auxiliar insertarAuxiliar
+     * Inserta llaves en nodos distintos a la raíz
+     * @param nodo: objeto de tipo NodoArbol que representa el nodo en el que se evalúa la inserción
+     * @param x: Variable de tipo int que representa la variable a insertar
+     * @return Objeto de tipo ResultadoSplit si ocurre un desbordamiento en el nodo o null si no debe haber split
+     */
+    private ResultadoSplit insertarAuxiliar(NodoArbolB nodo, int x) {
+        //Define el caso en el que el nodo considerado para la inserción es una hoja
+        if (nodo.esHoja) {
+            //Define el caso en el que la llave ya existe en el nodo
+            if (nodo.llaves.contains(x)){
+                return null; //No hace la inserción ni indica que haya splits para que no haya llaves duplicadas
+            }
+            int pos = 0; //Variable de tipo int que representa la posición donde se insertará la llave
+            while (pos < nodo.llaves.size() && nodo.llaves.get(pos) < x) {
+                pos++; // Busca la posición correcta según orden ascendente
+            }
+            nodo.llaves.add(pos, x); //Inserta la llave en la posición calculada
+            //Define el caso en el que el nodo alcanza 4 llaves
+            if (nodo.llaves.size() == 4) {
+                return dividir(nodo); //Ordena la ejecución de la división del nodo
+            }
+            return null; //Indica que el nodo no se desbordó
+        //Define el caso en el que el nodo sea interno
+        } else {
+            if (nodo.llaves.contains(x)) {
+                return null; //Evita inserción si la llave está presente en el nodo interno
+            }
+            int i = 0; //Inicializa índice para seleccionar el hijo adecuado
+            while (i < nodo.llaves.size() && x > nodo.llaves.get(i)) { //Encuentra la rama correspondiente para descender
+                i++;
+            }
+            ResultadoSplit splitHijo = insertarAuxiliar(nodo.hijos.get(i), x); //Llama recursivamente sobre el hijo
+            //Dedine el caso en el que el hijo requirió división tras la inserción
+            if (splitHijo != null) {
+                nodo.llaves.add(i, splitHijo.mediana); //Inserta la mediana devuelta en las llaves del nodo actual
+                nodo.hijos.set(i, splitHijo.hijoIzquierdo); //Reemplaza la referencia al hijo por el nodo izquierdo
+                nodo.hijos.add(i + 1, splitHijo.hijoDerecho); //Agrega la referencia al nuevo nodo derecho
+                if (nodo.llaves.size() == 4) return dividir(nodo); // Divide el nodo si alcanza 4 llaves
+            }
+            return null;
+        }
+    }
 }
