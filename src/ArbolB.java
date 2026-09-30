@@ -28,6 +28,27 @@ public class ArbolB {
             this.hijos = new ArrayList<>(); //Asigna la lista de hijos vacía
         }
     }
+
+    /**
+     * Clase interna estática ResultadoSplit
+     * Representa el resultado de la división o split de un nodo
+     */
+    private static class ResultadoSplit {
+        int mediana; //Variable de tipo int que representa el valor de la llave considerada como mediana
+        NodoArbolB hijoIzquierdo; //Objeto de tipo NodoArbolB que representa al nuevo nodo izquierdo formado después de la división del nodo original
+        NodoArbolB hijoDerecho; //Objeto de tipo NodoArbolB que representa al nuevo nodo derecho formado después de la división del nodo original
+        /**
+         * Constructor por parámetros de la clase ResultadoSplit
+         * @param mediana
+         * @param hijoIzquierdo
+         * @param hijoDerecho
+         */
+        public ResultadoSplit(int mediana, NodoArbolB hijoIzquierdo, NodoArbolB hijoDerecho) {
+            this.mediana = mediana;
+            this.hijoIzquierdo = hijoIzquierdo;
+            this.hijoDerecho = hijoDerecho;
+        }
+    }
     
     private NodoArbolB raiz; //Objeto de tipo NodoArbolB que representa al nodo raíz del árbol
     /**
@@ -68,5 +89,29 @@ public class ArbolB {
         }
         System.out.println("Llave " + x + " -> NOT_FOUND"); //Indica que la llave no se encontró al terminar el ciclo
         return; //Termina la ejecución del método
+    }
+
+    /**
+     * Método insertar
+     * Inserta una llave nueva en la raíz del árbol y responde a promociones y splits en caso de ser necesario
+     * @param x: Variable de tipo int que representa la llave a insertar
+     */
+    public void insertar(int x) {
+        //Define el caso en el que el árbol esté vacío
+        if (raiz == null) {
+            raiz = new NodoArbolB(true); //Crea un objeto de tipo NodoArbolB para ser la raíz sin hijos del árbol
+            raiz.llaves.add(x); //Añade la llave insertada como único elemento de la lista de llaves de la raíz
+            return; //Termina la ejecución del método
+        }
+        ResultadoSplit split = insertarAuxiliar(raiz, x); //Crea un objeto de tipo ResultadoSplit y manda a llamar un método auxiliar para encargarse de un split en un caso necesario
+        //Define el caso en el que el split haya ocurrido a nivel de la raíz
+        if (split != null) {
+            NodoArbolB nuevaRaiz = new NodoArbolB(false); //Crea un objeto de tipo NodoArbolB que representa un nuevo nodo raíz
+            nuevaRaiz.llaves.add(split.mediana); //Inserta la mediana de la raíz anterior como único elemento de a lista de llaves de la nueva raíz
+            nuevaRaiz.hijos.add(split.hijoIzquierdo); //Añade al hijo izquierdo formado por el split a la lista de hijos de la nueva raíz
+            nuevaRaiz.hijos.add(split.hijoDerecho); //Añade al hijo derecho formado por el split a la lista de hijos de la nueva raíz
+            raiz = nuevaRaiz; //Actualiza la referencia de la raíz del árbol para que corresponda con la nueva raíz
+        }
+        System.out.println("Llave " + x + " -> Insertada"); //Imprime un mensaje que indica la nueva llave que se insertó
     }
 }
