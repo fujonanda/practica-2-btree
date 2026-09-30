@@ -180,5 +180,33 @@ public class ArbolB {
         return new ResultadoSplit(mediana, izquierda, derecha); // Retorna los datos de la división
     }
 
-    
+    /**
+     * Método eliminar
+     * Elimina una llave del Árbol B y ajusta la raíz si queda vacía
+     * @param x Llave a eliminar del árbol
+     */
+    public void eliminar(int x) {
+        // Define el caso en el que árbol está vacío
+        if (raiz == null) {
+            System.out.println("El árbol está vacío"); //Imprime el mensaje que indica que el árbol está vacío
+            return; //Termina el método sin eliminaciones
+        }
+        boolean encontrado = eliminarAuxiliar(raiz, x); //Ejecuta el procedimiento de eliminación recursiva
+        // Define el caso en el que la llave no fue localizada durante el recorrido
+        if (!encontrado) {
+            System.out.println("Llave " + x + " -> NOT_FOUND y no puede eliminarse"); //Mensaje que indica que la llave no se encontró y no se pudo eliminar
+            return; //Termina el método sin eliminaciones
+        }
+        //Define el caso en el que la llave termina vacía tras la eliminación
+        if (raiz.llaves.isEmpty()) {
+            //Define el caso en el que la raíz tiene al menos un hijo no vacío
+            if (!raiz.esHoja && !raiz.hijos.isEmpty()) {
+                raiz = raiz.hijos.get(0); //Promueve al hijo como la raíz
+            //Define el caso en el que la raíz no tenga hijos
+            } else {
+                raiz = null; //El árbol pasa a estar vacío
+            }
+        }
+        System.out.println("Llave " + x + " -> Eliminada"); // Imprime un mensaje que indica la llave eliminada
+    }
 }
